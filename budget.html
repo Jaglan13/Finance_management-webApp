@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="storage.js"></script>
+    <script src="theme.js"></script>
+    <title>Budget - Smart Finance Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom right, #141e30, #243b55);
+            color: #333;
+        }
+        header {
+            background: linear-gradient(90deg, #1d4350, #a43931);
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-around;
+            background: #a43931;
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 8px 15px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        nav a:hover {
+            background-color: #1d4350;
+            transform: scale(1.1);
+        }
+
+        .container {
+            margin: 20px auto;
+            max-width: 1200px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #ff6f61;
+        }
+        .chart-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .chart-container canvas {
+            max-width: 400px;
+            max-height: 300px;
+            margin: auto;
+        }
+        .budget-form input, .budget-form select, .budget-form button {
+            padding: 10px;
+            margin: 5px 0;
+            width: 90%;
+            max-width: 300px;
+            display: block;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .budget-summary {
+            margin-top: 20px;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .budget-summary th, .budget-summary td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .budget-summary th {
+            background-color: #ff6f61;
+            color: white;
+        }
+        footer {
+            margin-top: 20px;
+            background: linear-gradient(90deg, #1d4350, #a43931);
+            color: white;
+            text-align: center;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        Budget - Smart Finance Dashboard
+    </header>
+    <nav>
+    <a href="home.html">🏠 Home</a>
+        <a href="overview.html">📊 Overview</a>
+        <a href="expenses.html">💸 Expenses</a>
+        <a href="budget.html">📈 Budget</a>
+        <a href="analytics.html">📉 Analytics</a>
+        <a href="transactions.html">💳 Transactions</a>
+        <a href="settings.html">⚙️ Settings</a>
+        <a href="login.html">📝 Sign-Up</a>
+    </nav>
+
+    <div class="container">
+        <h1>Budget Management</h1>
+        <p>Set and manage your budgets effectively to stay on track financially.</p>
+
+        <div class="chart-container">
+            <h3>Budget vs Actual Expenses</h3>
+            <canvas id="budgetChart"></canvas>
+        </div>
+
+        <div class="budget-form">
+            <h3>Set a New Budget</h3>
+            <form id="budgetForm">
+                <label for="category">Category</label>
+                <select id="category" required>
+                    <option value="Food">Food</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Savings">Savings</option>
+                </select>
+                <label for="amount">Budget Amount (₹)</label>
+                <input type="number" id="amount" placeholder="Enter amount" required>
+                <button type="submit">Add Budget</button>
+            </form>
+        </div>
+
+        <h3>Budget Summary</h3>
+        <table class="budget-summary">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Budgeted Amount</th>
+                    <th>Actual Expenses</th>
+                    <th>Remaining</th>
+                </tr>
+            </thead>
+            <tbody id="summaryTableBody"></tbody>
+        </table>
+    </div>
+
+    <footer>
+        &copy; 2024 Smart Finance Application. All Rights Reserved.
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", loadBudget);
+        let chart;
+
+        function addBudget(event) {
+            event.preventDefault();
+            const category = document.getElementById("category").value;
+            const amount = parseFloat(document.getElementById("amount").value);
+            if (isNaN(amount) || amount <= 0) {
+                alert("Enter a valid budget amount.");
+                return;
+            }
+
+            let budgets = JSON.parse(localStorage.getItem("budgets")) || {};
+            budgets[category] = (budgets[category] || 0) + amount;
+            localStorage.setItem("budgets", JSON.stringify(budgets));
+            document.getElementById("budgetForm").reset();
+            loadBudget();
+        }
+
+        function loadBudget() {
+            let budgets = JSON.parse(localStorage.getItem("budgets")) || {};
+            let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+            let actualExpenses = {};
+            expenses.forEach(exp => {
+                actualExpenses[exp.category] = (actualExpenses[exp.category] || 0) + exp.amount;
+            });
+
+            const summaryTableBody = document.getElementById("summaryTableBody");
+            summaryTableBody.innerHTML = "";
+            const categories = Object.keys(budgets);
+            const budgetValues = categories.map(cat => budgets[cat]);
+            const expenseValues = categories.map(cat => actualExpenses[cat] || 0);
+
+            categories.forEach(category => {
+                const remaining = budgets[category] - (actualExpenses[category] || 0);
+                const row = `<tr>
+                    <td>${category}</td>
+                    <td>₹${budgets[category].toFixed(2)}</td>
+                    <td>₹${(actualExpenses[category] || 0).toFixed(2)}</td>
+                    <td>₹${remaining.toFixed(2)}</td>
+                </tr>`;
+                summaryTableBody.innerHTML += row;
+            });
+
+            updateChart(categories, budgetValues, expenseValues);
+        }
+
+        function updateChart(categories, budgetValues, expenseValues) {
+            if (chart) chart.destroy();
+            const ctx = document.getElementById("budgetChart").getContext("2d");
+            chart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: categories,
+                    datasets: [
+                        {
+                            label: "Budgeted Amount",
+                            data: budgetValues,
+                            backgroundColor: "rgba(75, 192, 192, 0.5)",
+                        },
+                        {
+                            label: "Actual Expenses",
+                            data: expenseValues,
+                            backgroundColor: "rgba(255, 99, 132, 0.5)",
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: "top" },
+                        title: { display: true, text: "Budget vs Actual Expenses" }
+                    }
+                }
+            });
+        }
+
+        document.getElementById("budgetForm").addEventListener("submit", addBudget);
+    </script>
+</body>
+</html>

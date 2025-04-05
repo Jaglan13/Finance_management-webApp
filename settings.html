@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="storage.js"></script>
+    <script src="theme.js"></script>
+    <title>Settings - Smart Finance Dashboard</title>
+    
+    <style>
+        :root {
+            --background-color: #f4f7fc;
+            --text-color: #333;
+            --header-bg-color: #ff6f61;
+            --nav-bg-color: #333;
+            --container-bg-color: white;
+            --button-bg-color: #ff6f61;
+            --footer-bg-color: #ff6f61;
+        }
+
+        [data-theme="dark"] {
+            --background-color: #1e1e1e;
+            --text-color: #f4f4f4;
+            --header-bg-color: #222;
+            --nav-bg-color: #222;
+            --container-bg-color: #333;
+            --button-bg-color: #555;
+            --footer-bg-color: #222;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom right, #141e30, #243b55);
+            color: #333;
+        }
+        header {
+            background: linear-gradient(90deg, #1d4350, #a43931);
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        nav {
+            display: flex;
+            justify-content: space-around;
+            background: #a43931;
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 8px 15px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        nav a:hover {
+            background-color: #1d4350;
+            transform: scale(1.1);
+        }
+
+
+        .container {
+            margin: 20px auto;
+            max-width: 600px;
+            padding: 20px;
+            background: var(--container-bg-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h3 {
+            text-align: center;
+            color: var(--button-bg-color);
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input, select {
+            width: 80%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 80%;
+            background: var(--button-bg-color);
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .send-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+        .send-button img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .chatbot-container {
+            margin-top: 30px;
+            padding: 15px;
+            background: var(--container-bg-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .chatbot-messages {
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        .chatbot-question {
+            display: inline-block;
+            background: #ff6f61;
+            color: white;
+            padding: 8px 12px;
+            margin: 5px;
+            border-radius: 15px;
+            cursor: pointer;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            background: var(--footer-bg-color);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        Settings - Smart Finance Dashboard
+    </header>
+
+    <nav>
+        <a href="home.html">🏠 Home</a>
+        <a href="overview.html">📊 Overview</a>
+        <a href="expenses.html">💸 Expenses</a>
+        <a href="budget.html">📈 Budget</a>
+        <a href="analytics.html">📉 Analytics</a>
+        <a href="transactions.html">💳 Transactions</a>
+        <a href="settings.html">⚙️ Settings</a>
+        <a href="login.html">📝 Sign-Up</a>
+    </nav>
+
+    <div class="container">
+        <h1>Settings</h1>
+
+        <div class="settings-section">
+            <h3>Account Settings</h3>
+            <label for="username">Username:</label>
+            <input type="text" id="username" placeholder="Enter a username">
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Enter a password">
+
+            <button onclick="saveCredentials()">Save Credentials</button>
+            <p id="credentialsMessage"></p>
+        </div>
+
+        <div class="settings-section">
+            <h3>Theme Settings</h3>
+            <label for="theme">Select Theme</label>
+            <select id="theme">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+            </select>
+            <button onclick="saveTheme()">Save Changes</button>
+        </div>
+
+        <div class="chatbot-container">
+            <h3>AI Chatbot Assistant</h3>
+            <div class="chatbot-messages" id="chatbotMessages">
+                <p><strong>Bot:</strong> Hi! How can I assist you?</p>
+            </div>
+            <div class="chat-input-container">
+                <input type="text" id="chatbotInput" class="chat-input" placeholder="Ask a question...">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+            <h4>Suggested Questions:</h4>
+            <div id="chatbotQuestions"></div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2024 Smart Finance Application. All Rights Reserved.
+    </footer>
+
+    <script>
+        function saveCredentials() {
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+
+            if (username === "" || password === "") {
+                alert("Please enter both username and password.");
+                return;
+            }
+
+            localStorage.setItem("savedUsername", username);
+            localStorage.setItem("savedPassword", password);
+
+            document.getElementById("credentialsMessage").innerText = "Credentials saved successfully!";
+        }
+
+        function saveTheme() {
+            const theme = document.getElementById("theme").value;
+            localStorage.setItem("selectedTheme", theme);
+            document.documentElement.setAttribute("data-theme", theme);
+        }
+
+        function loadTheme() {
+            const savedTheme = localStorage.getItem("selectedTheme") || "light";
+            document.getElementById("theme").value = savedTheme;
+            document.documentElement.setAttribute("data-theme", savedTheme);
+        }
+
+        document.addEventListener("DOMContentLoaded", loadTheme);
+
+        const chatbotQuestions = [
+            { question: "How to add a transaction?", answer: "Go to Transactions, enter the details, and click 'Add'." },
+            { question: "Where to see my expenses?", answer: "Go to the Expenses section, where all transactions are listed." },
+            { question: "How to set a budget?", answer: "Navigate to Budget, select a category, and enter your budget limit." },
+            { question: "How to enable dark mode?", answer: "Go to Settings, select 'Dark' theme, and save changes." },
+        ];
+
+        function sendMessage() {
+            const inputField = document.getElementById("chatbotInput");
+            const messagesContainer = document.getElementById("chatbotMessages");
+            const userMessage = inputField.value.trim().toLowerCase();
+
+            if (!userMessage) return;
+
+            messagesContainer.innerHTML += `<p><strong>You:</strong> ${userMessage}</p>`;
+            inputField.value = "";
+
+            if (userMessage === "hii") {
+                messagesContainer.innerHTML += `<p><strong>Bot:</strong> Hii, how can I assist you?</p>`;
+                loadQuestions();
+                return;
+            }
+
+            const matchedQuestion = chatbotQuestions.find(q => q.question.toLowerCase() === userMessage);
+            const botReply = matchedQuestion ? matchedQuestion.answer : "I'm not sure. Try selecting a suggested question.";
+
+            messagesContainer.innerHTML += `<p><strong>Bot:</strong> ${botReply}</p>`;
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function loadQuestions() {
+            const questionsContainer = document.getElementById("chatbotQuestions");
+            questionsContainer.innerHTML = ""; 
+            chatbotQuestions.forEach(q => {
+                const bubble = document.createElement("div");
+                bubble.classList.add("chatbot-question");
+                bubble.innerText = q.question;
+                bubble.onclick = () => {
+                    document.getElementById("chatbotInput").value = q.question;
+                    sendMessage();
+                };
+                questionsContainer.appendChild(bubble);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="storage.js"></script>
+    <script src="theme.js"></script>
+    <title>Finance Dashboard</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom right, #141e30, #243b55);
+            color: #333;
+        }
+        header {
+            background: linear-gradient(90deg, #1d4350, #a43931);
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        nav {
+            display: flex;
+            justify-content: space-around;
+            background: #a43931;
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 8px 15px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        nav a:hover {
+            background-color: #a12286;
+            transform: scale(1.1);
+        }
+
+
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 50px auto;
+            max-width: 1400px;
+            padding: 0 20px;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 40px;
+            width: 100%;
+        }
+        
+        .card {
+            background: linear-gradient(145deg, #1f2739, #2c3e50);
+            border-radius: 25px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            color: white;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            perspective: 1000px; /* Enables 3D effect */
+            transform-style: preserve-3d;
+        }
+        
+        /* Hover Effect */
+        .card:hover {
+            transform: translateY(-20px) rotateY(15deg) rotateX(10deg);
+            box-shadow: 10px 15px 30px rgba(176, 36, 218, 0.5);
+        }
+        
+        .card h3 {
+            margin: 15px 0;
+            font-size: 26px;
+            color: #ff6f61;
+            text-transform: uppercase;
+        }
+        
+        .card p {
+            font-size: 22px;
+            color: #f0f0f0;
+            font-weight: bold;
+        }
+        
+        footer {
+            margin-top: 40%;
+            background: linear-gradient(90deg, #1d4350, #a43931);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            
+        }
+    </style>
+</head>
+<body>
+    <header>
+        Smart Finance Application
+    </header>
+    <nav>
+        <a href="home.html">🏠 Home</a>
+            <a href="overview.html">📊 Overview</a>
+            <a href="expenses.html">💸 Expenses</a>
+            <a href="budget.html">📈 Budget</a>
+            <a href="analytics.html">📉 Analytics</a>
+            <a href="transactions.html">💳 Transactions</a>
+            <a href="settings.html">⚙️ Settings</a>
+            <a href="login.html">📝 Sign-Up</a>
+        </nav>
+
+    <div class="container">
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="icon">💰</div>
+                <h3>Total Balance</h3>
+                <p id="totalBalance">Loading...</p>
+            </div>
+            <div class="card">
+                <div class="icon">📊</div>
+                <h3>Monthly Expenses</h3>
+                <p id="monthlyExpenses">Loading...</p>
+            </div>
+            <div class="card">
+                <div class="icon">📈</div>
+                <h3>Budget Utilization</h3>
+                <p id="budgetUtilization">Loading...</p>
+            </div>
+            <div class="card">
+                <div class="icon">🎯</div>
+                <h3>Savings Goal</h3>
+                <p id="savingsGoal">Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2024 Smart Finance Application. All Rights Reserved.
+    </footer>
+
+    <script>
+        function updateBalance() {
+            let accounts = JSON.parse(localStorage.getItem("accounts")) || [];
+            let totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
+            document.getElementById("totalBalance").innerText = `₹${totalBalance.toFixed(2)}`;
+        }
+
+        function updateExpenses() {
+            let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+            let totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+            document.getElementById("monthlyExpenses").innerText = `₹${totalExpenses.toFixed(2)}`;
+        }
+
+        function updateBudgetUtilization() {
+            let budgets = JSON.parse(localStorage.getItem("budgets")) || {};
+            let totalBudget = Object.values(budgets).reduce((sum, budget) => sum + budget, 0);
+            let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+            let totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+            let utilization = totalBudget > 0 ? (totalExpenses / totalBudget) * 100 : 0;
+            document.getElementById("budgetUtilization").innerText = `${utilization.toFixed(2)}% Used`;
+        }
+
+        function updateSavingsGoal() {
+            let accounts = JSON.parse(localStorage.getItem("accounts")) || [];
+            let totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
+            let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+            let totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+            let savingsGoal = totalBalance > 0 ? ((totalBalance - totalExpenses) / totalBalance) * 100 : 0;
+            document.getElementById("savingsGoal").innerText = `${savingsGoal.toFixed(2)}% Achieved`;
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            updateBalance();
+            updateExpenses();
+            updateBudgetUtilization();
+            updateSavingsGoal();
+        });
+    </script>
+</body>
+</html>

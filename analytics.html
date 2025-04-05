@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="storage.js"></script>
+    <script src="theme.js"></script>
+    <title>Analytics - Smart Finance Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom right, #141e30, #243b55);
+            color: #333;
+        }
+        header {
+            background: linear-gradient(90deg, #1d4350, #a43931);
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-around;
+            background: #a43931;
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 8px 15px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        nav a:hover {
+            background-color: #1d4350;
+            transform: scale(1.1);
+        }
+
+        .container {
+            margin: 20px auto;
+            max-width: 1200px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #ff6f61;
+            text-align: center;
+        }
+
+        .chart-container {
+            margin-top: 30px;
+        }
+
+        .chart {
+            margin-bottom: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .chart h3 {
+            color: #ff6f61;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .chart canvas {
+            max-width: 600px;
+            max-height: 350px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px 0;
+            background: linear-gradient(90deg, #1d4350, #a43931);
+            color: white;
+            margin-top: 30px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        Analytics - Smart Finance Dashboard
+    </header>
+
+    <nav>
+        <a href="home.html">🏠 Home</a>
+        <a href="overview.html">📊 Overview</a>
+        <a href="expenses.html">💸 Expenses</a>
+        <a href="budget.html">📈 Budget</a>
+        <a href="analytics.html">📉 Analytics</a>
+        <a href="transactions.html">💳 Transactions</a>
+        <a href="settings.html">⚙️ Settings</a>
+        <a href="login.html">📝 Sign-Up</a>
+    </nav>
+
+    <div class="container">
+        <h1>Analytics</h1>
+        <p style="text-align: center; font-size: 16px; color: #666;">
+            Analyze your financial data with detailed charts and insights.
+        </p>
+
+        <div class="chart-container">
+            <div class="chart">
+                <h3>Monthly Expense Breakdown</h3>
+                <canvas id="expenseBreakdownChart"></canvas>
+            </div>
+
+            <div class="chart">
+                <h3>Income vs Expenses Over Time</h3>
+                <canvas id="incomeVsExpensesChart"></canvas>
+            </div>
+
+            <div class="chart">
+                <h3>Savings Progress</h3>
+                <canvas id="savingsProgressChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2024 Smart Finance Application. All Rights Reserved.
+    </footer>
+
+    <script>
+        function fetchFinancialData() {
+            let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+            let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+            let accounts = JSON.parse(localStorage.getItem("accounts")) || [];
+
+            // Calculate Income & Expenses
+            let totalIncome = transactions.reduce((sum, txn) => txn.type === "deposit" ? sum + txn.amount : sum, 0);
+            let totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+            let totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
+            let savings = totalIncome - totalExpenses;
+
+            return { totalIncome, totalExpenses, totalBalance, savings, expenses };
+        }
+
+        function updateCharts() {
+            let { totalIncome, totalExpenses, totalBalance, savings, expenses } = fetchFinancialData();
+
+            // Expense Breakdown Chart
+            const expenseBreakdownCtx = document.getElementById('expenseBreakdownChart').getContext('2d');
+            new Chart(expenseBreakdownCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: expenses.map(exp => exp.category || "Other"),
+                    datasets: [{
+                        data: expenses.map(exp => exp.amount),
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50', '#AA6FF0'],
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: { display: true, text: 'Monthly Expense Breakdown' }
+                    }
+                }
+            });
+
+            // Income vs Expenses Chart
+            const incomeVsExpensesCtx = document.getElementById('incomeVsExpensesChart').getContext('2d');
+            new Chart(incomeVsExpensesCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [
+                        {
+                            label: 'Income',
+                            data: [totalIncome * 0.8, totalIncome * 0.9, totalIncome, totalIncome * 1.1, totalIncome * 0.95, totalIncome],
+                            borderColor: '#4CAF50',
+                            backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                            fill: true
+                        },
+                        {
+                            label: 'Expenses',
+                            data: [totalExpenses * 0.9, totalExpenses, totalExpenses * 1.05, totalExpenses * 0.95, totalExpenses * 1.1, totalExpenses],
+                            borderColor: '#FF6384',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: 'Income vs Expenses Over Time' }
+                    }
+                }
+            });
+
+            // Savings Progress Chart
+            const savingsProgressCtx = document.getElementById('savingsProgressChart').getContext('2d');
+            new Chart(savingsProgressCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Savings',
+                        data: [savings * 0.8, savings * 0.9, savings, savings * 1.1, savings * 0.95, savings],
+                        backgroundColor: '#36A2EB',
+                        borderColor: '#36A2EB',
+                        borderWidth: 1,
+                        hoverBackgroundColor: '#007bb5'
+                    }]
+                }
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", updateCharts);
+    </script>
+</body>
+</html>

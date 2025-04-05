@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="storage.js"></script>
+    <script src="theme.js"></script>
+    <title>Overview - Smart Finance Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom right, #141e30, #243b55);
+            color: #333;
+        }
+        header {
+            background: linear-gradient(90deg, #1d4350, #a43931);
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        nav {
+            display: flex;
+            justify-content: space-around;
+            background: #a43931;
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 8px 15px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        nav a:hover {
+            background-color: #1d4350;
+            transform: scale(1.1);
+        }
+        .container {
+            margin: 20px auto;
+            max-width: 1200px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #ff6f61;
+        }
+        
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .card {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+            perspective: 800px;
+            transform-style: preserve-3d;
+        }
+        
+        /* Hover Effect */
+        .card:hover {
+            transform: scale(1.1) rotateX(10deg) rotateY(-5deg);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card h3 {
+            color: #ff6f61;
+            margin-bottom: 10px;
+        }
+        
+        .card p {
+            color: #ff6f61;
+        }
+        
+        .chart-container {
+            margin-top: 20px;
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+            overflow: hidden; /* Prevents chart from overflowing */
+            max-width: 750px; /* Restrict width */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Hover Effect */
+        .chart-container:hover {
+            transform: scale(1.02) rotateX(5deg) rotateY(-3deg);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Chart Styling */
+        .chart-container canvas {
+            display: block;
+            width: 100% !important;
+            height: auto !important;
+            max-width: 700px;
+            max-height: 400px;
+            margin: 0 auto;
+        }
+        
+        
+        
+        footer {
+            margin-top: 20px;
+            background: linear-gradient(90deg, #1d4350, #a43931);
+            color: white;
+            text-align: center;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        Overview - Smart Finance Dashboard
+    </header>
+    <nav>
+        <a href="home.html">🏠 Home</a>
+            <a href="overview.html">📊 Overview</a>
+            <a href="expenses.html">💸 Expenses</a>
+            <a href="budget.html">📈 Budget</a>
+            <a href="analytics.html">📉 Analytics</a>
+            <a href="transactions.html">💳 Transactions</a>
+            <a href="settings.html">⚙️ Settings</a>
+            <a href="login.html">📝 Sign-Up</a>
+        </nav>
+
+    <div class="container">
+        <h1>Overview</h1>
+        <p>Welcome to the Smart Finance Dashboard. Here you can get a quick snapshot of your financial status.</p>
+
+        <div class="overview-grid">
+            <div class="card">
+                <h3>Total Balance</h3>
+                <p id="totalBalance">Loading...</p>
+            </div>
+            <div class="card">
+                <h3>Monthly Income</h3>
+                <p id="monthlyIncome">Loading...</p>
+            </div>
+            <div class="card">
+                <h3>Monthly Expenses</h3>
+                <p id="monthlyExpenses">Loading...</p>
+            </div>
+            <div class="card">
+                <h3>Savings</h3>
+                <p id="savings">Loading...</p>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h3>Financial Overview Chart</h3>
+            <canvas id="overviewChart"></canvas>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2024 Smart Finance Application. All Rights Reserved.
+    </footer>
+
+    <script>
+        function updateOverview() {
+            let accounts = JSON.parse(localStorage.getItem("accounts")) || [];
+            let totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
+            let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+            let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+
+            let totalIncome = accounts.reduce((sum, acc) => sum + acc.income, 0); // Taking Monthly Income from transactions
+            let totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+            let savings = totalIncome - totalExpenses;
+
+            document.getElementById("totalBalance").innerText = `₹${totalBalance.toFixed(2)}`;
+            document.getElementById("monthlyIncome").innerText = `₹${totalIncome.toFixed(2)}`;
+            document.getElementById("monthlyExpenses").innerText = `₹${totalExpenses.toFixed(2)}`;
+            document.getElementById("savings").innerText = `₹${savings.toFixed(2)}`;
+
+            updateChart(totalBalance, totalIncome, totalExpenses, savings);
+        }
+
+        function updateChart(totalBalance, totalIncome, totalExpenses, savings) {
+            const ctx = document.getElementById('overviewChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Total Balance', 'Monthly Income', 'Monthly Expenses', 'Savings'],
+                    datasets: [{
+                        label: 'Amount (₹)',
+                        data: [totalBalance, totalIncome, totalExpenses, savings],
+                        backgroundColor: ['rgba(75, 192, 192, 0.5)', 'rgba(54, 162, 235, 0.5)', 'rgba(255, 99, 132, 0.5)', 'rgba(255, 206, 86, 0.5)']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", updateOverview);
+    </script>
+</body>
+</html>

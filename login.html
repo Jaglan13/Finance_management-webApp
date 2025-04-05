@@ -1,0 +1,323 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="storage.js"></script>
+    <script src="theme.js"></script>
+    <title>Smart Finance Application</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #4a90e2, #8e44ad);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            width: 100%;
+            background: #4a90e2;
+            padding: 20px 0;
+            text-align: center;
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            width: 100%;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 10px 0;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #4a90e2;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: capitalize;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        nav a:hover {
+            background: #4a90e2;
+            color: #fff;
+        }
+
+        .home-logo {
+            width: 24px;
+            height: 24px;
+        }
+
+        .container {
+            position: relative;
+            width: 900px;
+            height: 550px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .form-container {
+            position: absolute;
+            width: 50%;
+            height: 100%;
+            padding: 50px;
+            transition: transform 0.6s ease-in-out;
+        }
+
+        .form-container.sign-up {
+            left: 100%;
+            opacity: 0;
+            z-index: 1;
+        }
+
+        .form-container.sign-in {
+            left: 0;
+            z-index: 2;
+        }
+
+        .container.active .form-container.sign-up {
+            transform: translateX(-100%);
+            opacity: 1;
+            z-index: 2;
+        }
+
+        .container.active .form-container.sign-in {
+            transform: translateX(-100%);
+            opacity: 0;
+            z-index: 1;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .social-icons a {
+            text-decoration: none;
+            color: #fff;
+            font-size: 20px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #8e44ad;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+
+        .social-icons a:hover {
+            background: #4a90e2;
+        }
+
+        span {
+            font-size: 14px;
+            color: #777;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            background: #8e44ad;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #4a90e2;
+        }
+
+        .toggle-container {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(135deg, #8e44ad, #4a90e2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #fff;
+            transition: transform 0.6s ease-in-out;
+        }
+
+        .toggle-panel {
+            width: 100%;
+            padding: 40px;
+        }
+
+        .toggle-panel h1 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .toggle-panel p {
+            font-size: 14px;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .toggle-panel button {
+            background: #fff;
+            color: #8e44ad;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .toggle-panel button:hover {
+            background: #ddd;
+            color: #4a90e2;
+        }
+
+        .container.active .toggle-container {
+            transform: translateX(-100%);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        Smart Finance Application
+    </header>
+
+    <nav>
+        <a href="home.html">🏠 Home</a>
+            <a href="overview.html">📊 Overview</a>
+            <a href="expenses.html">💸 Expenses</a>
+            <a href="budget.html">📈 Budget</a>
+            <a href="analytics.html">📉 Analytics</a>
+            <a href="transactions.html">💳 Transactions</a>
+            <a href="settings.html">⚙️ Settings</a>
+            <a href="login.html">📝 Sign-Up</a>
+    </nav>
+
+    <div class="container" id="container">
+
+        <!-- Sign Up Form -->
+        <div class="form-container sign-up">
+            <form>
+                <h1>Create Account</h1>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-google"></i></a>
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+                <span>or use your email for registration</span>
+                <input type="text" placeholder="Name">
+                <input type="email" placeholder="Email">
+                <input type="password" placeholder="Password">
+                <button>Sign Up</button>
+            </form>
+        </div>
+
+        <!-- Sign In Form -->
+        <div class="form-container sign-in">
+            <form>
+                <h1>Sign In</h1>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-google"></i></a>
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+                <span>or use your email to log in</span>
+                <input type="email" placeholder="Email">
+                <input type="password" placeholder="Password">
+                <a href="#">Forgot your password?</a>
+                <button>Sign In</button>
+            </form>
+        </div>
+
+        <!-- Toggle Section -->
+        <div class="toggle-container">
+            <div class="toggle-panel">
+                <h1>Welcome Back!</h1>
+                <p>To stay connected with us, please log in with your personal info.</p>
+                <button id="signIn">Sign In</button>
+            </div>
+            <div class="toggle-panel">
+                <h1>Hello, Friend!</h1>
+                <p>Enter your details to start your journey with us.</p>
+                <button id="signUp">Sign Up</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const container = document.getElementById('container');
+        const signUpButton = document.getElementById('signUp');
+        const signInButton = document.getElementById('signIn');
+
+        signUpButton.addEventListener('click', () => {
+            container.classList.add('active');
+        });
+
+        signInButton.addEventListener('click', () => {
+            container.classList.remove('active');
+        });
+    </script>
+
+</body>
+</html>

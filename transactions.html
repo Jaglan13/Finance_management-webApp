@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="storage.js"></script>
+    <script src="theme.js"></script>
+    <title>Welcome to Smart Finance Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom right, #141e30, #243b55);
+            color: #333;
+        }
+        header {
+            background: linear-gradient(90deg, #1d4350, #a43931);
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        nav {
+            display: flex;
+            justify-content: space-around;
+            background: #a43931;
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 8px 15px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        nav a:hover {
+            background-color: #1d4350;
+            transform: scale(1.1);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            color: black;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+        }
+        h1 {
+            color: #ff6f61;
+        }
+        input, button {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .account-list {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .account-item {
+            background: #f9f9f9;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .remove-btn, .action-btn {
+            background: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .action-btn {
+            background: #007BFF;
+        }
+    </style>
+</head>
+<header>
+    Transactions - Smart Finance Dashboard
+</header>
+<nav>
+    <a href="home.html">🏠 Home</a>
+        <a href="overview.html">📊 Overview</a>
+        <a href="expenses.html">💸 Expenses</a>
+        <a href="budget.html">📈 Budget</a>
+        <a href="analytics.html">📉 Analytics</a>
+        <a href="transactions.html">💳 Transactions</a>
+        <a href="settings.html">⚙️ Settings</a>
+        <a href="login.html">📝 Sign-Up</a>
+    </nav>
+<body>
+    <div class="container">
+        <h1>Manage Accounts</h1>
+        <input type="text" id="name" placeholder="Name">
+        <input type="text" id="accountNumber" placeholder="Account Number">
+        <input type="email" id="email" placeholder="Email">
+        <input type="text" id="phone" placeholder="Phone">
+        <input type="number" id="income" placeholder="Monthly Income" min="0">
+        <input type="number" id="balance" placeholder="Initial Balance" min="0">
+        <button onclick="addAccount()">Add Account</button>
+        
+        <h2>Saved Accounts</h2>
+        <div id="accountList" class="account-list"></div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", loadAccounts);
+
+        function addAccount() {
+            const name = document.getElementById("name").value;
+            const accountNumber = document.getElementById("accountNumber").value;
+            const email = document.getElementById("email").value;
+            const phone = document.getElementById("phone").value;
+            const income = parseFloat(document.getElementById("income").value) || 0;
+            const balance = parseFloat(document.getElementById("balance").value) || 0;
+
+            if (!name || !accountNumber || !email || !phone) {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            const account = { name, accountNumber, email, phone, income, balance };
+            let accounts = JSON.parse(localStorage.getItem("accounts")) || [];
+            accounts.push(account);
+            localStorage.setItem("accounts", JSON.stringify(accounts));
+
+            displayAccounts();
+
+            document.getElementById("name").value = "";
+            document.getElementById("accountNumber").value = "";
+            document.getElementById("email").value = "";
+            document.getElementById("phone").value = "";
+            document.getElementById("income").value = "";
+            document.getElementById("balance").value = "";
+        }
+
+        function displayAccounts() {
+            const accountList = document.getElementById("accountList");
+            accountList.innerHTML = "";
+            let accounts = JSON.parse(localStorage.getItem("accounts")) || [];
+            
+            accounts.forEach((account, index) => {
+                const accountItem = document.createElement("div");
+                accountItem.classList.add("account-item");
+                accountItem.innerHTML = `
+                    <div>
+                        <strong>${account.name}</strong> - ${account.accountNumber}<br>
+                        ${account.email} | ${account.phone} <br>
+                        Monthly Income: ₹${account.income.toFixed(2)}<br>
+                        Balance: ₹<span id="balance-${index}">${account.balance.toFixed(2)}</span>
+                    </div>
+                    <button class="action-btn" onclick="modifyBalance(${index}, 'deposit')">Deposit</button>
+                    <button class="action-btn" onclick="modifyBalance(${index}, 'withdraw')">Withdraw</button>
+                    <button class="remove-btn" onclick="removeAccount(${index})">Remove</button>
+                `;
+                accountList.appendChild(accountItem);
+            });
+        }
+
+        function removeAccount(index) {
+            let accounts = JSON.parse(localStorage.getItem("accounts")) || [];
+            accounts.splice(index, 1);
+            localStorage.setItem("accounts", JSON.stringify(accounts));
+            displayAccounts();
+        }
+
+        function modifyBalance(index, type) {
+            let accounts = JSON.parse(localStorage.getItem("accounts")) || [];
+            let amount = parseFloat(prompt(`Enter amount to ${type}:`));
+
+            if (isNaN(amount) || amount <= 0) {
+                alert("Please enter a valid amount.");
+                return;
+            }
+
+            if (type === 'withdraw' && amount > accounts[index].balance) {
+                alert("Insufficient balance.");
+                return;
+            }
+
+            accounts[index].balance = type === 'deposit' ? 
+                accounts[index].balance + amount : 
+                accounts[index].balance - amount;
+
+            localStorage.setItem("accounts", JSON.stringify(accounts));
+            displayAccounts();
+            alert(`₹${amount.toFixed(2)} ${type}ed successfully!`);
+        }
+
+        function loadAccounts() {
+            displayAccounts();
+        }
+    </script>
+</body>
+</html>
